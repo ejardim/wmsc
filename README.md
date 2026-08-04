@@ -1,10 +1,10 @@
 # WMSC
 
-West Mediterranean Stock Companion
+West Mediterranean Stock Assessment Companion
 
 <!-- optional logo -->
 <p align="center">
-  <img src="man/figures/wmsc.png" alt="WMSC package logo" width="180">
+  <img src="man/figures/wmsc.png" alt="WMSC package logo" width="320">
 </p>
 
 ## Overview
