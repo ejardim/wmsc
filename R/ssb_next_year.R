@@ -27,7 +27,7 @@ ssb_next_year <- function(stock,rec.years=10,biol.years=3) {
   m(stock)[,ac(max_year+1)]<- yearMeans(m(stock)[,ac((max_year-biol.years+1):max_year)])
   stock.wt(stock)[,ac(max_year+1)]<- yearMeans(stock.wt(stock)[,ac((max_year-biol.years+1):(max_year))])
   stock.n(stock)[,ac(max_year+1)]<- survivors(stock[,ac(max_year)])
-  rec(stock)[,ac(max_year+1)] <- exp(mean(log(rec(stock)[,ac((max_year-rec.years+1):(max_year))])))
+  rec(stock)[,ac(max_year+1)] <- exp(yearMeans(log(rec(stock)[,ac((max_year-rec.years+1):(max_year))])))
   return(stock)
 }
 
