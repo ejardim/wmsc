@@ -15,4 +15,11 @@ Depends:
   FLa4a,
   FLBRP,
   FLasher
-
+Imports: 
+  rmarkdown
+Suggests: 
+    kableExtra,
+    gridExtra,
+    ggplotFL,
+    a4adiags,
+    icesAdvice

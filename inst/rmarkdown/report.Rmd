@@ -1,0 +1,268 @@
+---
+title: "a4a Stock Assessment Report"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+params:
+  stk: NA
+  idx: NA
+  fit: NA
+  comp_stk: NA
+---
+
+```{r setup, include=FALSE}
+library(FLa4a)
+library(ggplotFL);theme_set(theme_bw())
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width = 9, fig.height = 7)
+
+# Extract objects from params
+stk <- params$stk
+idx <- params$idx
+fit <- params$fit
+stk.sim <- stk + simulate(fit, nsim = 1000)
+```
+
+# Assessment Results {.tabset .tabset-pills}
+
+## Data Input
+
+```{r data-input, warning = FALSE}
+# Combine into a single FLQuants object and convert to a data.frame for ggplot
+df_cld <- as.data.frame(FLQuants(
+  Catch = catch(stk),
+  Landings = landings(stk),
+  Discards = discards(stk)
+))
+
+ggplot(df_cld, aes(x = year, y = data, color = qname)) +
+  geom_line(linewidth = 1) +
+  scale_color_viridis_d(option = "turbo") +
+  theme_bw(base_size = 12) +
+  labs(
+    title = "Catch, Landings, and Discards over Time",
+    x = "Year",
+    y = "Tonnage",
+    color = ""
+  ) +
+  theme(legend.position = "bottom")
+```
+
+### Catch-at-Age
+
+```{r catch-at-age, warning=FALSE}
+age_breaks <- as.numeric(range(stk)["min"]):as.numeric(range(stk)["max"])
+
+ggplot(as.data.frame(catch.n(stk)), 
+       aes(x = as.numeric(as.character(age)), 
+           y = data, 
+           color = as.numeric(as.character(year)),              
+           group = as.factor(year))) +
+  geom_line(alpha = 0.85) +
+  scale_color_viridis_c(option = "turbo") +
+  labs(title = "Catch-at-Age", x = "Age", y = "Numbers", color = "Year") +
+  theme_bw(base_size = 9) +
+  theme(legend.position = "right") +
+  scale_x_continuous(breaks = age_breaks)
+```
+
+### Weight-at-Age
+
+```{r weight-at-age, warning=FALSE}
+ggplot(as.data.frame(stock.wt(stk)), 
+       aes(x = as.numeric(as.character(age)), 
+           y = data, 
+           color = as.numeric(as.character(year)),              
+           group = as.factor(year))) +
+  geom_line(alpha = 0.85) +
+  scale_color_viridis_c(option = "turbo") +
+  labs(title = "Weight-at-Age (Stock)", x = "Age", y = "Weight", color = "Year") +
+  theme_bw(base_size = 9) +
+  theme(legend.position = "right") +
+  scale_x_continuous(breaks = age_breaks)
+```
+
+### Maturity and Natural Mortality
+
+```{r mat-and-m, fig.width=10, fig.height=4, warning=FALSE}
+
+library(kableExtra)
+# Extract just the first year since maturity and M are constant
+df_mat <- as.data.frame(mat(stk)[, 1])
+df_m   <- as.data.frame(m(stk)[, 1])
+
+p_mat <- ggplot(df_mat, aes(x = as.numeric(as.character(age)), y = data)) +
+  geom_line(linewidth = 1, color = "#2c7bb6") +
+  geom_point(color = "#2c7bb6", size = 2) +
+  labs(title = "Maturity-at-Age", x = "Age", y = "Proportion Mature") +
+  theme_bw(base_size = 10) +
+  scale_x_continuous(breaks = age_breaks)
+
+p_m <- ggplot(df_m, aes(x = as.numeric(as.character(age)), y = data)) +
+  geom_line(linewidth = 1, color = "#d7191c") +
+  geom_point(color = "#d7191c", size = 2) +
+  labs(title = "Natural Mortality-at-Age (M)", x = "Age", y = "M") +
+  theme_bw(base_size = 10) +
+  scale_x_continuous(breaks = age_breaks)
+
+# Plot side by side
+gridExtra::grid.arrange(p_mat, p_m, ncol = 2)
+```
+
+## Stock Summary
+
+### Submodel configuration
+
+```{r submodels-table}
+    strip_formula <- function(mod) {
+        as.formula(paste(deparse(formula(mod)), collapse = " "))
+    }
+    
+    fmod_base  <- strip_formula(fmodel(fit))
+    srmod_base <- strip_formula(srmodel(fit))
+    n1mod      <- strip_formula(n1model(fit))
+    qmod       <- lapply(as.list(qmodel(fit)), strip_formula)
+    vmod       <- lapply(as.list(vmodel(fit)), strip_formula)
+  
+    format_form <- function(x) {
+      paste(deparse(x), collapse = " ")
+    }
+
+    submodels_df <- data.frame(
+      Component = c(
+        "Fishing Mortality (fmodel)", 
+        "(Stock) Recruitment (srmodel)", 
+        "Initial N (n1model)", 
+        paste("Catchability (qmodel):", names(qmod)),
+        paste("Variance (vmodel):", names(vmod))
+      ),
+      Formula = c(
+        format_form(fmod_base),
+        format_form(srmod_base),
+        format_form(n1mod),
+        sapply(qmod, format_form),
+        sapply(vmod, format_form)
+      )
+    )
+  
+    
+kable(submodels_df, format = "html", col.names = c("Submodel Component", "Formula")) |>           
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = FALSE) |>    
+      column_spec(1, bold = TRUE, width = "18em") |>
+      column_spec(2, monospace = TRUE, color = "#2c7bb6")
+
+
+```
+
+### Summary Plots (F, SSB, Catch, Recruits)
+
+```{r summary-plot}
+plot(stk.sim)
+```
+
+```{r summary-table}
+
+summary_df <- data.frame(
+      Year = as.numeric(dimnames(stk)$year),
+      Recruits = round(as.numeric(iterMedians(rec(stk.sim))), 0),
+      SSB = round(as.numeric(iterMedians(ssb(stk.sim))), 0),
+      Catch = round(as.numeric(iterMedians(catch(stk.sim))), 0),
+      Fbar = round(as.numeric(iterMedians(fbar(stk.sim))), 3)
+    )
+kableExtra::kable(summary_df)
+```
+
+### Submodel plots
+
+```{r harvest-q--wire}
+w1 <- wireframe(data ~ age + year, data = as.data.frame(harvest(fit)), drape = TRUE,
+          main="Fishing mortality", screen = list(x = -90, y=-45),
+          col.regions = colorRampPalette(c("blue", "yellow"))(100))
+          qhat <- predict(fit)$qmodel[[1]]
+w2 <- wireframe(data ~ age + year, data = as.data.frame(qhat), drape = TRUE,
+          main="Catchability", screen = list(x = -90, y=-45),
+          col.regions = colorRampPalette(c("blue", "yellow"))(100))
+
+gridExtra::grid.arrange(w1,w2,ncol = 2)
+```
+
+```{r catcability-wire}
+
+```
+
+## Diagnostics
+
+### Log Residuals
+
+```{r residuals-plot}
+res <- residuals(fit, stk, idx)
+plot(res, auxline=c("h", "g"))
+```
+
+### Quantile plot
+
+```{r quantile-plot}
+qqmath(res)
+```
+
+### Fitted vs. Observed Catch
+
+```{r fit-obs-plot}
+plot(fit, stk)
+```
+
+
+### Fit against indices
+
+```{r q-plot}
+plot(fit, idx)
+```
+
+
+### Aggregated catch diagnostics
+
+```{r aggr-catch-diag}
+c_d <- computeCatchDiagnostics(fit, stk)
+plot(c_d, cex=0.8)
+```
+
+### Hindcast
+
+```{r hindcast}
+library(a4adiags)
+nyears <- 5
+nsq <- 3
+hc <- a4ahcxval(stk, idx, nyears = nyears, nsq = nsq)
+plotXval2(hc$indices)
+```
+
+
+## Retrospective plot
+
+```{r retro}
+retros <- wmsc::retro(stk,idx,fit,peels = 3, kfrac = 0.5)
+pills <- length(retros) - 1 
+mohn_ssb <- icesAdvice::mohn(mohnMatrix(retros, ssb), peels = pills)
+mohn_f   <- icesAdvice::mohn(mohnMatrix(retros, fbar), peels = pills)
+
+retros[[1]] <- stk.sim
+plot(retros) +
+  labs(subtitle = sprintf("Mohn's rho: SSB = %.3f  |  Fbar = %.3f", mohn_ssb, mohn_f))
+
+```
+
+```{r reference-points}
+# Placeholder for reference points
+message("Reference points analysis will be displayed here.")
+```
+
+## Comparison Plot
+
+```{r stock-comparison}
+
+if (is(params$comp_stk, "FLStock")) {
+      plot(FLStocks("Current Assessment" = stk.sim, "Comparison" = params$comp_stk))
+    }
+
+```
