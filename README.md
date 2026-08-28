@@ -15,17 +15,20 @@ WMSC provides support tools for stock assessment workflows used for western Medi
 
 ```r
 # install.packages("pak")
-pak::pak("ejardim/WMSC")
+pak::pak("ejardim/wmsc")
 ```
 
 ## Example
 
 ```r
-library(WMSC)
+library(wmsc)
 
 # example function call
-# data <- load_stock_data(...)
-# result <- run_assessment_check(data)
+# data(ple4)
+# data(ple4.index)
+# idxs <- FLIndices(BTS = ple4.index)
+# fit <- sca(ple4, idxs)
+# retros <- retro(stk = ple4, idxs = idxs, fit = fit, peels = 5)
 ```
 
 ## Scope
