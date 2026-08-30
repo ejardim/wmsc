@@ -2,9 +2,7 @@
 
 export(easteregg)
 export(partial_f)
-export(renderCatchReport)
 export(renderReporta4a)
 export(retro)
 export(ssb_next_year)
-import(rmarkdown)
 importFrom(utils,browseURL)
