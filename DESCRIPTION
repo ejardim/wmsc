@@ -8,7 +8,6 @@ Description: Supporting methods for the STECF Expert Working Group on stock asse
 License: `use_ccby_license()`
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 8.1.0
 Depends:
   R(>= 4.0),
   FLCore,
@@ -23,3 +22,4 @@ Suggests:
     ggplotFL,
     a4adiags,
     icesAdvice
+Config/roxygen2/version: 8.1.0

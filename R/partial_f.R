@@ -1,22 +1,24 @@
-#' partial_f calculates fishing mortality by unit (fleet)
+#' partial_f calculates fishing mortality by fleet
 #'
 #' Produces a FLQuant with fishing mortalities by unit.
 #'
-#' @param stock An object of class FLStock with the assessment results (no default)
-#' @param catch_per_fleet catch numbers at age and year per fleet, using the unit dimension
-#' @return FLQuant
+#' @param fit An object of class a4aFitSA with the assessment fit (no default)
+#' @param partial_stocks An object of class FLStocks containing the partial stock objects (fleets)
+#' @return FLQuants
 #' @export
-#' @examples
+
 
 ### function to calculate partial fishing mortality by fleet
 
-partial_f <- function(stock, catch_per_fleet, ...) {
-
+partial_f <- function(fit, partial_stocks, ...) {
+  
   spread(list(...))
-  dc <- dim(catch_per_fleet)
-  stk <- stock[,,rep(1, dc[3]), rep(1, dc[4]), rep(1, dc[5])]
-  pf <- catch_per_fleet/catch.n(stk)*harvest(stk)
-  pf
-
+  
+  f_tot <- harvest(fit)
+  c_fleets <- catch.n(partial_stocks)
+  c_tot <- Reduce("+", c_fleets)
+  pf <- lapply(c_fleets, function(x) {
+    (x / c_tot) * f_tot
+  })
+  return(pf)
 }
-
