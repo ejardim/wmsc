@@ -229,12 +229,16 @@ plot(c_d, cex=0.8)
 
 ### Hindcast
 
-```{r hindcast}
+```{r hindcast, error=TRUE}
 library(a4adiags)
 nyears <- 5
 nsq <- 3
-hc <- a4ahcxval(stk, idx, nyears = nyears, nsq = nsq)
-plotXval2(hc$indices)
+hc <- try(a4ahcxval(stk, idx, nyears = nyears, nsq = nsq), silent = TRUE)
+if (!inherits(hc, "try-error")) {
+  plotXval2(hc$indices)
+} else {
+  message("a4ahcxval encountered an error and was skipped.")
+}
 ```
 
 
