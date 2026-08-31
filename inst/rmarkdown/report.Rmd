@@ -34,20 +34,23 @@ stk.sim <- stk + simulate(fit, nsim = 1000)
 
 * Fbar range: `r range(stk)['minfbar']` : `r range(stk)['maxfbar']`
 
-```{r conditional-warning, echo=FALSE, results='asis'}                   
-  sopchk <- computeCatch(stk)/catch(stk)
-                                                                                                     
-    # if (any(abs(as.numeric(sopchk) - 1) > 0.0001, na.rm = TRUE)) {                                                      
-    #   cat('                                                                  
-    # <div class="alert alert-danger">                                         
-    #   ⚠️ WARNING: Your have not SoP corrected your stock                                        
-    # </div>                                                                   
-    # ')
-    # }
- if (any(abs(as.numeric(sopchk) - 1) > 0.0001)) {
-   cat('<span style="color: red; font-weight: bold;">You have not SoP corrected your stock</span>')
- }
+* Survey start: `r range(idx[[1]])['startf']` end: `r range(idx[[1]])['endf']`
 
+```{r conditional-warning, echo=FALSE, results='asis'}                   
+#   sopchk <- computeCatch(stk)/catch(stk)
+                                                                                                     
+#     # if (any(abs(as.numeric(sopchk) - 1) > 0.0001, na.rm = TRUE)) {                                                      
+#     #   cat('                                                                  
+#     # <div class="alert alert-danger">                                         
+#     #   ⚠️ WARNING: Your have not SoP corrected your stock                                        
+#     # </div>                                                                   
+#     # ')
+#     # }
+#  if (any(abs(as.numeric(sopchk) - 1) > 0.0001)) {
+#    cat('<span style="color: red; font-weight: bold;">You have not SoP corrected your stock</span>')
+#  }
+
+plot(computeCatch(stk)/catch(stk)) + ggtitle("SoP correction")
 
 ```
 
@@ -301,8 +304,10 @@ message("Reference points analysis will be displayed here.")
 
 ```{r stock-comparison}
 
-if (is(params$comp_stk, "FLStock")) {
-      plot(FLStocks("Current Assessment" = stk.sim, "Comparison" = params$comp_stk))
+if (is(params$comp_stk, "FLStocks")) {
+      myStocks <- params$comp_stk
+      myStocks[['reference_run']] <- stk
+      plot(myStocks)
     }
 
 ```
