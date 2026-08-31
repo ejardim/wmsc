@@ -28,6 +28,30 @@ stk.sim <- stk + simulate(fit, nsim = 1000)
 
 ## Data Input
 
+* Years range of the stock: `r range(stk)['minyear']` : `r range(stk)['maxyear']`
+
+* Plusgroup: `r range(stk)['plusgroup']`
+
+* Fbar range: `r range(stk)['minfbar']` : `r range(stk)['maxfbar']`
+
+```{r conditional-warning, echo=FALSE, results='asis'}                   
+  sopchk <- computeCatch(stk)/catch(stk)
+                                                                                                     
+    # if (any(abs(as.numeric(sopchk) - 1) > 0.0001, na.rm = TRUE)) {                                                      
+    #   cat('                                                                  
+    # <div class="alert alert-danger">                                         
+    #   ⚠️ WARNING: Your have not SoP corrected your stock                                        
+    # </div>                                                                   
+    # ')
+    # }
+ if (any(abs(as.numeric(sopchk) - 1) > 0.0001)) {
+   cat('<span style="color: red; font-weight: bold;">You have not SoP corrected your stock</span>')
+ }
+
+
+```
+
+
 ```{r data-input, warning = FALSE}
 # Combine into a single FLQuants object and convert to a data.frame for ggplot
 df_cld <- as.data.frame(FLQuants(
@@ -65,6 +89,12 @@ ggplot(as.data.frame(catch.n(stk)),
   theme_bw(base_size = 9) +
   theme(legend.position = "right") +
   scale_x_continuous(breaks = age_breaks)
+```
+
+### Index by age
+
+```{r index-by-age, warning = FALSE}
+plot(index(idx)[[1]])
 ```
 
 ### Weight-at-Age
@@ -197,7 +227,13 @@ gridExtra::grid.arrange(w1,w2,ncol = 2)
 
 ```{r residuals-plot}
 res <- residuals(fit, stk, idx)
-plot(res, auxline=c("h", "g"))
+plot(res)
+```
+
+### Bubble plot
+
+```{r bubble-plot}
+bubbles(res)
 ```
 
 ### Quantile plot
@@ -229,7 +265,7 @@ plot(c_d, cex=0.8)
 
 ### Hindcast
 
-```{r hindcast, error=TRUE}
+```{r hindcast, error = TRUE}
 library(a4adiags)
 nyears <- 5
 nsq <- 3
