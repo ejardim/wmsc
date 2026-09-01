@@ -315,7 +315,7 @@ message("Reference points analysis will be displayed here.")
 
 if (is(params$comp_stk, "FLStocks")) {
       myStocks <- params$comp_stk
-      myStocks[['reference_run']] <- stk
+      myStocks[['reference_run']] <- stk.sim
       plot(myStocks)
     }
 
