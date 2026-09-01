@@ -188,10 +188,19 @@ kable(submodels_df, format = "html", col.names = c("Submodel Component", "Formul
 
 ```
 
+### Fitting Summary table
+
+```{r fitting-table}
+
+kableExtra::kable(as.data.frame(fitSumm(fit)))
+
+```
+
+
 ### Summary Plots (F, SSB, Catch, Recruits)
 
 ```{r summary-plot}
-plot(stk.sim)
+plot(FLStocks(`Reference run` = stk.sim, `Catch` = stk)) + ylim(0.01,NA)
 ```
 
 ```{r summary-table}

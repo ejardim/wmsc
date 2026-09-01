@@ -12,8 +12,8 @@ partial_f(fit, partial_stocks, ...)
 \item{partial_stocks}{An object of class FLStocks containing the partial stock objects (fleets)}
 }
 \value{
-FLQuants
+FLStocks
 }
 \description{
-Produces a FLQuant with fishing mortalities by unit.
+Produces a FLStocks with the harvest slot update
 }
