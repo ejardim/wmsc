@@ -24,7 +24,7 @@ fit <- params$fit
 stk.sim <- stk + simulate(fit, nsim = 1000)
 ```
 
-# Assessment Results {.tabset .tabset-pills}
+# Assessment Results for `r name(stk)` {.tabset .tabset-pills}
 
 ## Data Input
 
@@ -36,7 +36,7 @@ stk.sim <- stk + simulate(fit, nsim = 1000)
 
 * Survey start: `r range(idx[[1]])['startf']` end: `r range(idx[[1]])['endf']`
 
-```{r conditional-warning, echo=FALSE, results='asis'}                   
+```{r conditional-warning, echo=FALSE, results='asis', fig.height = 4}                   
 #   sopchk <- computeCatch(stk)/catch(stk)
                                                                                                      
 #     # if (any(abs(as.numeric(sopchk) - 1) > 0.0001, na.rm = TRUE)) {                                                      
@@ -50,7 +50,7 @@ stk.sim <- stk + simulate(fit, nsim = 1000)
 #    cat('<span style="color: red; font-weight: bold;">You have not SoP corrected your stock</span>')
 #  }
 
-plot(computeCatch(stk)/catch(stk)) + ggtitle("SoP correction")
+plot(computeCatch(stk)/catch(stk)) + ggtitle("SoP correction") + ylim(0,NA)
 
 ```
 
@@ -320,3 +320,36 @@ if (is(params$comp_stk, "FLStocks")) {
     }
 
 ```
+
+## Reference points (Indicative)
+
+
+```{r ref-pts-plot, message = FALSE, warning = FALSE}
+aa_stk <- stk + fit
+  landings.n(aa_stk) <- catch.n(aa_stk)
+  landings.wt(aa_stk) <- catch.wt(aa_stk)
+  landings(aa_stk)   <- catch(aa_stk)
+  discards(aa_stk)   <- 0
+  discards.n(aa_stk) <- 0
+  discards.wt(aa_stk) <- 0
+ 
+aa.stk.sim <- aa_stk + simulate(fit, nsim = 250)
+rfp <- refpts(brp(FLBRP(aa.stk.sim, fmle(as.FLSR(aa.stk.sim,model=geomean),control = list(silent = TRUE)))))["f0.1",c("harvest", "ssb")]
+
+rfpdf <- as.data.frame(rfp)
+ggplot(data = rfpdf, aes(x = data, fill = quant)) + 
+  geom_histogram(bins = 15, color = "black", show.legend = FALSE) +
+  facet_wrap(~ quant, scales = "free_x") +
+  scale_fill_manual(values = c("harvest" = "lightgreen", "ssb" = "skyblue")) +
+  labs(title = "Histograms of SSB and Harvest at (f0.1)", x = "Value", y = "Frequency") +
+  theme_minimal()
+
+```
+
+- $F_{0.1}$: `r round(as.numeric(iterMedians(rfp[,'harvest'])),3)`
+
+- $SSB_{F0.1}$: `r round(as.numeric(iterMedians(rfp[,'ssb'])),0)`
+
+- $F/F_{0.1}$: `r round(as.numeric(iterMedians(fbar(stk[,dims(stk)$year])/rfp[,'harvest'])),3)`
+
+- $SSB/SSB_{F0.1}$: `r round(as.numeric(iterMedians(ssb(stk[,dims(stk)$year])/rfp[,'ssb'])),3)`
