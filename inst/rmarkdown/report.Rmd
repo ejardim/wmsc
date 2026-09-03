@@ -337,10 +337,16 @@ aa.stk.sim <- aa_stk + simulate(fit, nsim = 250)
 rfp <- refpts(brp(FLBRP(aa.stk.sim, fmle(as.FLSR(aa.stk.sim,model=geomean),control = list(silent = TRUE)))))["f0.1",c("harvest", "ssb")]
 
 rfpdf <- as.data.frame(rfp)
+q05 <- aggregate(data ~ quant, data = rfpdf, FUN = quantile, probs = 0.05)
+q95 <- aggregate(data ~ quant, data = rfpdf, FUN = quantile, probs = 0.95)
+
+# Generate the plot
 ggplot(data = rfpdf, aes(x = data, fill = quant)) + 
   geom_histogram(bins = 15, color = "black", show.legend = FALSE) +
   facet_wrap(~ quant, scales = "free_x") +
   scale_fill_manual(values = c("harvest" = "lightgreen", "ssb" = "skyblue")) +
+  geom_vline(data = q05, aes(xintercept = data), color = "red", linetype = "dashed") +
+  geom_vline(data = q95, aes(xintercept = data), color = "red", linetype = "dashed") +
   labs(title = "Histograms of SSB and Harvest at (f0.1)", x = "Value", y = "Frequency") +
   theme_minimal()
 
@@ -350,6 +356,7 @@ ggplot(data = rfpdf, aes(x = data, fill = quant)) +
 
 - $SSB_{F0.1}$: `r round(as.numeric(iterMedians(rfp[,'ssb'])),0)`
 
-- $F/F_{0.1}$: `r round(as.numeric(iterMedians(fbar(stk[,dims(stk)$year])/rfp[,'harvest'])),3)`
+- $F/F_{0.1}$: `r round(as.numeric(iterMedians(fbar(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp[,'harvest'])),3)`
 
-- $SSB/SSB_{F0.1}$: `r round(as.numeric(iterMedians(ssb(stk[,dims(stk)$year])/rfp[,'ssb'])),3)`
+- $SSB/SSB_{F0.1}$: `r round(as.numeric(iterMedians(ssb(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp[,'ssb'])),3)`
+
