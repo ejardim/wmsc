@@ -334,9 +334,9 @@ aa_stk <- stk + fit
   discards.wt(aa_stk) <- 0
  
 aa.stk.sim <- aa_stk + simulate(fit, nsim = 250)
-rfp <- refpts(brp(FLBRP(aa.stk.sim, fmle(as.FLSR(aa.stk.sim,model=geomean),control = list(silent = TRUE)))))["f0.1",c("harvest", "ssb")]
+rfp <- refpts(brp(FLBRP(aa.stk.sim, fmle(as.FLSR(aa.stk.sim,model=geomean),control = list(silent = TRUE)))))[c("f0.1","fmax"),c("harvest", "ssb")]
 
-rfpdf <- as.data.frame(rfp)
+rfpdf <- as.data.frame(rfp['f0.1',])
 q05 <- aggregate(data ~ quant, data = rfpdf, FUN = quantile, probs = 0.05)
 q95 <- aggregate(data ~ quant, data = rfpdf, FUN = quantile, probs = 0.95)
 
@@ -352,11 +352,18 @@ ggplot(data = rfpdf, aes(x = data, fill = quant)) +
 
 ```
 
-- $F_{0.1}$: `r round(as.numeric(iterMedians(rfp[,'harvest'])),3)`
+- $F_{0.1}$: `r round(as.numeric(iterMedians(rfp['f0.1','harvest'])),3)`
 
-- $SSB_{F0.1}$: `r round(as.numeric(iterMedians(rfp[,'ssb'])),0)`
+- $SSB_{F0.1}$: `r round(as.numeric(iterMedians(rfp['f0.1','ssb'])),0)`
 
-- $F/F_{0.1}$: `r round(as.numeric(iterMedians(fbar(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp[,'harvest'])),3)`
+- $F/F_{0.1}$: `r round(as.numeric(iterMedians(fbar(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp['f0.1','harvest'])),3)`
 
-- $SSB/SSB_{F0.1}$: `r round(as.numeric(iterMedians(ssb(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp[,'ssb'])),3)`
+- $SSB/SSB_{F0.1}$: `r round(as.numeric(iterMedians(ssb(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp['f0.1','ssb'])),3)`
 
+- $F_{max}$: `r round(as.numeric(iterMedians(rfp['fmax','harvest'])),3)`
+
+- $F/F_{max}$: `r round(as.numeric(iterMedians(fbar(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp['fmax','harvest'])),3)`
+
+- $SSB_{Fmax}$: `r round(as.numeric(iterMedians(rfp['fmax','ssb'])),0)`
+
+- $SSB/SSB_{Fmax}$: `r round(as.numeric(iterMedians(ssb(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp['fmax','ssb'])),3)`
