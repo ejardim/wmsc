@@ -1,9 +1,10 @@
 Package: wmsc
 Title: Supporting methods for the STECF Expert Working Groups on stock assessment
-Version: 0.1.0
+Version: 0.5.0
 Authors@R: 
     person("Ernesto", "Jardim", , "ernesto.jardim@ipma.pt", role = c("aut", "cre"))
     person("Ale", "Orio", , "alessandro.orio@slu.se", role = c("aut", "cre"))
+    person("Danai", "Mantopoulou Palouka", , "alessandro.orio@slu.se", role = c("aut", "cre"))
 Description: Supporting methods for the STECF Expert Working Group on stock assessment
 License: `use_ccby_license()`
 Encoding: UTF-8
