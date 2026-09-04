@@ -367,3 +367,28 @@ ggplot(data = rfpdf, aes(x = data, fill = quant)) +
 - $SSB_{Fmax}$: `r round(as.numeric(iterMedians(rfp['fmax','ssb'])),0)`
 
 - $SSB/SSB_{Fmax}$: `r round(as.numeric(iterMedians(ssb(aa.stk.sim[,dims(aa.stk.sim)$year])/rfp['fmax','ssb'])),3)`
+
+- Catch in 2025 reported: `r round(as.numeric(iterMedians(catch(stk[,dims(stk)$year]))))`
+
+- Catch in 2025 modeled: `r round(as.numeric(iterMedians(catch(aa.stk.sim[,dims(aa.stk.sim)$year]))))`
+
+- SSB_{2025}: `r round(as.numeric(iterMedians(ssb(aa.stk.sim[,dims(aa.stk.sim)$year]),3)))`
+
+
+```{r ssb-next-year}
+yr <- dims(aa.stk.sim)$year + 1
+ssb2026 <- ifelse(unique(as.numeric(m.spwn(aa.stk.sim)))<1, as.numeric(iterMedians(ssb(ssb_next_year(aa.stk.sim)))[,yr]),NA)
+```
+
+- SSB_{2026}: `r round(ssb2026,3)`
+
+- $F_{2025}$: `r round(as.numeric(iterMedians(fbar(aa.stk.sim[,dims(aa.stk.sim)$year]))),3)`
+
+```{r changeF}
+fc <- as.numeric(iterMedians(fbar(aa.stk.sim[,dims(aa.stk.sim)$year])))
+fmsy <- as.numeric(iterMedians(rfp['f0.1','harvest']))
+
+fchange <- ((fmsy - fc)/fc)*100
+```
+
+- F change % : `r fchange`
