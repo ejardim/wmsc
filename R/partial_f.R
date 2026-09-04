@@ -13,8 +13,8 @@
 partial_f <- function(fit, partial_stocks, ...) {
   
   spread(list(...))
-  
   f_tot <- harvest(fit)
+  f_tot <- iterMedians(f_tot)
   c_fleets <- lapply(partial_stocks, catch.n)
   c_tot <- Reduce("+", c_fleets)
   pf <- lapply(c_fleets, function(x) {
